@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Divide la cuenta – Demo de usabilidad ISO 25010</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9f1ef;--surface:#fff;--text:#14232b;--muted:#40525b;--primary:#0b6b6b;--on-primary:#fff;--border:#6b7f88;--err:#a4122b;--ok:#0a6a3a;--soft:#dcebe8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a1f;--surface:#15262d;--text:#eaf3f1;--muted:#b2c4ca;--primary:#5fd0c8;--on-primary:#06201f;--border:#7c939b;--err:#ff9aa9;--ok:#7be0a6;--soft:#1d343b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1a1f;--surface:#15262d;--text:#eaf3f1;--muted:#b2c4ca;--primary:#5fd0c8;--on-primary:#06201f;--border:#7c939b;--err:#ff9aa9;--ok:#7be0a6;--soft:#1d343b;color-scheme:dark}
+:root[data-contrast="high"]{--bg:#000;--surface:#000;--text:#fff;--muted:#fff;--primary:#ffe600;--on-primary:#000;--border:#fff;--err:#ff9aa9;--ok:#7dff9e;--soft:#000;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Atkinson Hyperlegible",system-ui,"Segoe UI",Arial,sans-serif;font-size:1rem;line-height:1.55}
+.wrap{max-width:40rem;margin:0 auto;padding:1rem 1rem 3rem}
+h1{font-size:1.9rem;line-height:1.15;margin:.5rem 0 .25rem;letter-spacing:-.01em}
+h2{font-size:1.2rem;margin:0 0 .75rem}
+p{margin:0 0 .75rem}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:2px solid var(--border);border-radius:.9rem;padding:1.1rem;margin:1rem 0}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0 1rem}
+button,.chip{font:inherit;min-height:2.75rem;min-width:2.75rem;padding:.5rem 1rem;border-radius:.6rem;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+button.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary);font-weight:700}
+button[aria-pressed="true"]{background:var(--soft);border-color:var(--primary);font-weight:700}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+:root[data-contrast="high"] :focus-visible{outline-color:#fff}
+label,legend{display:block;font-weight:700;margin-bottom:.3rem;padding:0}
+input[type=text]{font:inherit;width:100%;min-height:2.75rem;padding:.5rem .75rem;border:2px solid var(--border);border-radius:.6rem;background:var(--surface);color:var(--text)}
+input[aria-invalid="true"]{border-color:var(--err)}
+.field{margin-bottom:1.1rem}
+.hint{font-size:.9rem;color:var(--muted);margin:.25rem 0 0}
+.err{font-size:.95rem;color:var(--err);font-weight:700;margin:.3rem 0 0;min-height:0}
+.stepper{display:flex;gap:.5rem}.stepper input{text-align:center;max-width:6rem}
+fieldset{border:0;margin:0 0 1.1rem;padding:0}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts label{position:relative;margin:0}
+.opts input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opts span{display:flex;align-items:center;justify-content:center;min-height:2.75rem;min-width:4.5rem;padding:.5rem 1rem;border:2px solid var(--border);border-radius:.6rem;font-weight:400}
+.opts input:checked+span{background:var(--primary);color:var(--on-primary);border-color:var(--primary);font-weight:700}
+.opts input:focus-visible+span{outline:3px solid var(--primary);outline-offset:2px}
+.ticket{border:2px dashed var(--border);border-radius:.6rem;padding:1rem;background:var(--soft)}
+.big{font-size:2.4rem;font-weight:700;line-height:1.1;margin:.2rem 0}
+.row{display:flex;justify-content:space-between;gap:1rem;border-top:1px dashed var(--border);padding:.35rem 0}
+.row:first-of-type{border-top:0}
+ul.tests{list-style:none;margin:0;padding:0}
+.tests li{border-top:1px solid var(--border);padding:.7rem 0}
+.tests li:first-child{border-top:0}
+.tests b{display:block}
+.st{display:inline-block;font-weight:700;padding:.05rem .5rem;border:2px solid currentColor;border-radius:.4rem;margin-right:.4rem}
+.st.ok{color:var(--ok)}.st.bad{color:var(--err)}.st.wait{color:var(--muted)}
+dl{margin:0}dt{font-weight:700;margin-top:.6rem}dd{margin:0}
+@media (prefers-reduced-motion:no-preference){button{transition:background .15s}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Divide la cuenta</h1>
+  <p class="muted">Calcula cuánto paga cada persona, con propina. Proyecto demo de <strong>usabilidad</strong> (ISO/IEC 25010).</p>
+
+  <div class="bar" role="group" aria-label="Ajustes de accesibilidad">
+    <button type="button" id="smaller" aria-label="Reducir tamaño del texto">A−</button>
+    <button type="button" id="bigger" aria-label="Aumentar tamaño del texto">A+</button>
+    <button type="button" id="hc" aria-pressed="false">Alto contraste</button>
+  </div>
+
+  <section class="card" id="calc" aria-labelledby="t-calc">
+    <h2 id="t-calc">Tu cuenta</h2>
+    <div class="field">
+      <label for="total">Total de la cuenta</label>
+      <input type="text" id="total" inputmode="decimal" autocomplete="off" aria-describedby="total-hint total-err">
+      <p class="hint" id="total-hint">Ejemplo: 45000 o 45,50</p>
+      <p class="err" id="total-err" role="alert"></p>
+    </div>
+    <div class="field">
+      <label for="people">Número de personas</label>
+      <div class="stepper">
+        <button type="button" id="minus" aria-label="Quitar una persona">−</button>
+        <input type="text" id="people" inputmode="numeric" value="2" aria-describedby="people-err">
+        <button type="button" id="plus" aria-label="Agregar una persona">+</button>
+      </div>
+      <p class="err" id="people-err" role="alert"></p>
+    </div>
+    <fieldset>
+      <legend>Propina</legend>
+      <div class="opts" id="tips">
+        <label><input type="radio" name="tip" value="0"><span>0 %</span></label>
+        <label><input type="radio" name="tip" value="10" checked><span>10 %</span></label>
+        <label><input type="radio" name="tip" value="15"><span>15 %</span></label>
+        <label><input type="radio" name="tip" value="20"><span>20 %</span></label>
+      </div>
+    </fieldset>
+    <div class="ticket" aria-live="polite" aria-atomic="true">
+      <div id="out-empty" class="muted">Escribe el total de la cuenta para ver el resultado.</div>
+      <div id="out" hidden>
+        <div class="muted">Cada persona paga</div>
+        <div class="big" id="per">$ 0,00</div>
+        <div class="row"><span>Propina</span><strong id="tipamt"></strong></div>
+        <div class="row"><span>Total con propina</span><strong id="grand"></strong></div>
+      </div>
+    </div>
+    <div class="bar" style="margin-top:1rem"><button type="button" id="clear">Limpiar y empezar de nuevo</button></div>
+  </section>
+
+  <section class="card" aria-labelledby="t-q">
+    <h2 id="t-q">Panel de calidad: usabilidad</h2>
+    <p class="muted">La página se prueba a sí misma con los siguientes criterios:.</p>
+    <div class="bar"><button type="button" class="primary" id="run">Ejecutar pruebas</button></div>
+    <ul class="tests" id="tests" aria-live="polite"></ul>
+  </section>
+
+  <section class="card" aria-labelledby="t-about">
+    <h2 id="t-about">Sobre este proyecto</h2>
+    <dl>
+      <dt>Idea</dt><dd>Una herramienta pequeña que resuelve algo cotidiano: dividir una cuenta en un restaurante.</dd>
+      <dt>Característica ISO/IEC 25010</dt><dd>Usabilidad, con sus subcaracterísticas: capacidad de reconocimiento, operabilidad, protección contra errores del usuario y accesibilidad.</dd>
+      <dt>Qué hice para demostrarla</dt><dd>Etiquetas visibles en cada campo, ejemplos de formato, mensajes de error que dicen cómo corregir, resultado en vivo sin botón "calcular", objetivos táctiles de al menos 44 px, foco visible, uso con teclado, tamaño de texto ajustable, modo de alto contraste y tipografía diseñada para legibilidad (Atkinson Hyperlegible).</dd>
+      <dt>Requisitos comprobables</dt>
+      <dd>RU-1: una persona nueva completa la tarea principal en 30 s o menos. RU-2: contraste de texto de 4,5:1 o más (WCAG AA). RU-3: botones y campos de al menos 44×44 px. RU-4: todo campo tiene etiqueta asociada. RU-5: una entrada inválida produce un mensaje que explica cómo corregirla. Todos se verifican arriba.</dd>
+      <dt>Estado</dt><dd>En desarrollo. Siguiente paso: pruebas con 5 usuarios reales y dividir cuentas con montos distintos por persona.</dd>
+    </dl>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt = n => '$ ' + n.toLocaleString('es', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+// --- Validación (funciones puras, también usadas por las pruebas) ---
+function validateTotal(v) {
+  v = String(v).trim();
+  if (v === '') return {empty: true};
+  const n = Number(v.replace(',', '.'));
+  if (!isFinite(n) || n <= 0 || !/^[0-9]+([.,][0-9]{1,2})?$/.test(v))
+    return {msg: 'Escribe solo números, mayores que 0. Ejemplo: 45000 o 45,50.'};
+  return {n};
+}
+function validatePeople(v) {
+  v = String(v).trim();
+  if (!/^[0-9]+$/.test(v) || +v < 1 || +v > 50)
+    return {msg: 'Escribe un número entero entre 1 y 50.'};
+  return {n: +v};
+}
+
+// --- Medición del tiempo de la tarea (RU-1) ---
+let t0 = null, elapsed = null;
+const startTimer = () => { if (t0 === null) t0 = performance.now(); };
+$('#calc').addEventListener('focusin', startTimer);
+$('#calc').addEventListener('pointerdown', startTimer);
+
+function setErr(input, errEl, msg) {
+  errEl.textContent = msg || '';
+  input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+}
+
+function update() {
+  const t = validateTotal($('#total').value);
+  const p = validatePeople($('#people').value);
+  setErr($('#total'), $('#total-err'), t.msg);
+  setErr($('#people'), $('#people-err'), p.msg);
+  const ok = t.n && p.n;
+  $('#out').hidden = !ok;
+  $('#out-empty').hidden = !!ok;
+  if (ok) {
+    const tip = +document.querySelector('input[name=tip]:checked').value / 100;
+    const tipAmt = t.n * tip, grand = t.n + tipAmt;
+    $('#per').textContent = fmt(grand / p.n);
+    $('#tipamt').textContent = fmt(tipAmt);
+    $('#grand').textContent = fmt(grand);
+    if (t0 !== null && elapsed === null) elapsed = (performance.now() - t0) / 1000;
+  }
+  renderTests();
+}
+
+// --- Pruebas automáticas de calidad ---
+const lum = ([r, g, b]) => {
+  const f = c => { c /= 255; return c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); };
+  return .2126 * f(r) + .7152 * f(g) + .0722 * f(b);
+};
+const rgb = s => (s.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 4).map(Number);
+function bgOf(el) {
+  while (el) {
+    const c = rgb(getComputedStyle(el).backgroundColor);
+    if (c.length < 4 || c[3] > .95) { if (c.length === 3 || c[3] > .95) return c; }
+    el = el.parentElement;
+  }
+  return [255, 255, 255];
+}
+function ratio(el) {
+  const fg = rgb(getComputedStyle(el).color), bg = bgOf(el);
+  const a = lum(fg), b = lum(bg);
+  return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+}
+
+function runChecks() {
+  const res = [];
+  // RU-1
+  res.push({
+    id: 'RU-1', name: 'Eficiencia de uso', req: 'Completar la tarea principal en 30 s o menos.',
+    status: elapsed === null ? 'wait' : (elapsed <= 30 ? 'ok' : 'bad'),
+    detail: elapsed === null ? 'Pendiente: escribe un total y mira el resultado para medir tu tiempo.' : 'Tu tiempo: ' + elapsed.toFixed(1) + ' s.'
+  });
+  // RU-2
+  const els = [...document.querySelectorAll('h1,h2,p,label,legend,button,input[type=text],.opts span,.big,.row,.st,dt,dd')].filter(e => e.offsetParent !== null && e.textContent.trim() !== '' || e.tagName === 'INPUT');
+  let min = 99, worst = '';
+  els.forEach(e => { const r = ratio(e); if (r < min) { min = r; worst = e.tagName.toLowerCase(); } });
+  res.push({
+    id: 'RU-2', name: 'Accesibilidad: contraste', req: 'Contraste de texto de al menos 4,5:1 (WCAG AA).',
+    status: min >= 4.5 ? 'ok' : 'bad',
+    detail: 'Peor caso medido: ' + min.toFixed(2).replace('.', ',') + ':1 (' + els.length + ' elementos revisados).'
+  });
+  // RU-3
+  const targets = [...document.querySelectorAll('button, input[type=text], .opts label')];
+  const small = targets.filter(e => { const r = e.getBoundingClientRect(); return r.width < 43.5 || r.height < 43.5; });
+  res.push({
+    id: 'RU-3', name: 'Operabilidad: objetivos táctiles', req: 'Botones y campos de al menos 44×44 px.',
+    status: small.length === 0 ? 'ok' : 'bad',
+    detail: targets.length + ' controles revisados, ' + small.length + ' menores a 44 px.'
+  });
+  // RU-4
+  const inputs = [...document.querySelectorAll('input')];
+  const noLabel = inputs.filter(i => !(i.labels && i.labels.length) && !i.getAttribute('aria-label'));
+  res.push({
+    id: 'RU-4', name: 'Accesibilidad: etiquetas', req: 'Todo campo tiene una etiqueta asociada.',
+    status: noLabel.length === 0 ? 'ok' : 'bad',
+    detail: inputs.length + ' campos revisados, ' + noLabel.length + ' sin etiqueta.'
+  });
+  // RU-5
+  const bad1 = validateTotal('abc'), bad2 = validateTotal('-5'), bad3 = validatePeople('0'), good = validateTotal('45,50');
+  const ok5 = !!bad1.msg && !!bad2.msg && !!bad3.msg && good.n === 45.5;
+  res.push({
+    id: 'RU-5', name: 'Protección contra errores', req: 'Una entrada inválida muestra un mensaje que explica cómo corregirla.',
+    status: ok5 ? 'ok' : 'bad',
+    detail: ok5 ? 'Se probaron "abc", "-5" y "0 personas": todas dan mensaje; "45,50" es aceptado.' : 'Alguna entrada inválida no produjo mensaje.'
+  });
+  return res;
+}
+function renderTests() {
+  const label = {ok: 'Cumple', bad: 'No cumple', wait: 'Pendiente'};
+  $('#tests').innerHTML = runChecks().map(r =>
+    `<li><b>${r.id} · ${r.name}</b><span class="muted">${r.req}</span><br>` +
+    `<span class="st ${r.status}">${label[r.status]}</span>${r.detail}</li>`).join('');
+}
+
+// --- Eventos ---
+['#total', '#people'].forEach(s => $(s).addEventListener('input', update));
+document.querySelectorAll('input[name=tip]').forEach(r => r.addEventListener('change', update));
+const step = d => { const p = validatePeople($('#people').value); $('#people').value = Math.min(50, Math.max(1, (p.n || 1) + d)); update(); };
+$('#minus').onclick = () => step(-1);
+$('#plus').onclick = () => step(1);
+$('#clear').onclick = () => {
+  $('#total').value = ''; $('#people').value = '2';
+  t0 = null; elapsed = null; update(); $('#total').focus();
+};
+$('#run').onclick = renderTests;
+
+let size = 0;
+const sizes = ['100%', '112.5%', '125%', '137.5%'];
+const applySize = () => { document.documentElement.style.fontSize = sizes[size]; setTimeout(renderTests, 50); };
+$('#smaller').onclick = () => { size = Math.max(0, size - 1); applySize(); };
+$('#bigger').onclick = () => { size = Math.min(3, size + 1); applySize(); };
+$('#hc').onclick = e => {
+  const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+  e.currentTarget.setAttribute('aria-pressed', on);
+  if (on) document.documentElement.dataset.contrast = 'high'; else delete document.documentElement.dataset.contrast;
+  setTimeout(renderTests, 50);
+};
+update();
+</script>
+</body>
+</html>
